@@ -18,6 +18,23 @@ epochs = 10
 
 ####################################
 
+def max_pool(inputs):
+    value, index = tf.nn.max_pool_with_argmax(tf.to_double(inputs), ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
+    return tf.to_float(value), index, inputs.get_shape().as_list()
+
+def up_sampling(pool, ind, output_shape, batch_size):
+    pool_ = tf.reshape(pool, [-1])
+    batch_range = tf.reshape(tf.range(batch_size, dtype=ind.dtype), [tf.shape(pool)[0], 1, 1, 1])
+    b = tf.ones_like(ind) * batch_range
+    b = tf.reshape(b, [-1, 1])
+    ind_ = tf.reshape(ind, [-1, 1])
+    ind_ = tf.concat([b, ind_], 1)
+    ret = tf.scatter_nd(ind_, pool_, shape=[batch_size, output_shape[1] * output_shape[2] * output_shape[3]])
+    ret = tf.reshape(ret, [tf.shape(pool)[0], output_shape[1], output_shape[2], output_shape[3]])
+    return ret
+
+####################################
+
 def encoder_block(x, filter_size, pool_size):
     conv1 = tf.layers.conv2d(inputs=x, filters=filter_size, kernel_size=[3, 3], padding='same')
     bn1   = tf.layers.batch_normalization(conv1)
@@ -27,11 +44,10 @@ def encoder_block(x, filter_size, pool_size):
     bn2   = tf.layers.batch_normalization(conv2)
     relu2 = tf.nn.relu(bn2)
 
-    pool = tf.layers.max_pooling2d(inputs=relu2, pool_size=[pool_size, pool_size], strides=pool_size, padding='same')
+    pool, idx, shape = max_pool(inputs=relu2)
+    return pool, idx, shape
 
-    return pool
-
-def decoder_block(x, filter_size, pool_size):
+def decoder_block(pool, idx, shape, filter_size, pool_size):
     conv1 = tf.layers.conv2d(inputs=x, filters=filter_size, kernel_size=[3, 3], padding='same')
     bn1   = tf.layers.batch_normalization(conv1)
     relu1 = tf.nn.relu(bn1)
@@ -40,24 +56,23 @@ def decoder_block(x, filter_size, pool_size):
     bn2   = tf.layers.batch_normalization(conv2)
     relu2 = tf.nn.relu(bn2)
 
-    up = tf.keras.layers.UpSampling2D() # tf.layers.max_pooling2d(inputs=relu2, pool_size=[pool_size, pool_size], strides=pool_size, padding='same')
-
-    return pool
+    up = up_sampling(pool, idx, shape, batch_size)
+    return up
 
 ####################################
 
 x = tf.placeholder(tf.float32, [None, 480, 480, 3])
 y = tf.placeholder(tf.float32, [None, 480, 480])
 
-encode1 = encoder_block(bn,      64,  2)
-encode2 = encoder_block(encode1, 128, 2)
-encode3 = encoder_block(encode2, 256, 2)
-encode4 = encoder_block(encode3, 512, 2)
+encode1, idx1, shape1 = encoder_block(bn,      64,  2)
+encode2, idx2, shape2 = encoder_block(encode1, 128, 2)
+encode3, idx3, shape3 = encoder_block(encode2, 256, 2)
+encode4, idx4, shape4 = encoder_block(encode3, 512, 2)
 
-decode1 = decoder_block(encode6, 512, 2)
-decode2 = decoder_block(decode1, 256, 2)
-decode3 = decoder_block(decode2, 128, 2)
-decode4 = decoder_block(decode3, 64,  2)
+decode1               = decoder_block(encode4, idx4, shape4, 512, 2)
+decode2               = decoder_block(encode3, idx3, shape3, 256, 2)
+decode3               = decoder_block(encode2, idx2, shape2, 128, 2)
+decode4               = decoder_block(encode1, idx1, shape1, 64,  2)
 
 out = tf.softmax(decode4)
 
