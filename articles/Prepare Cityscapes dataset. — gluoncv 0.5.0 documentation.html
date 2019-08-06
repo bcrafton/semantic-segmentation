@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" class="mdl-js"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    
+    <title>Prepare Cityscapes dataset. — gluoncv 0.5.0 documentation</title>
+
+    <link rel="stylesheet" href="Prepare%20Cityscapes%20dataset.%20%E2%80%94%20gluoncv%200.5.0%20documentation_files/basic.css" type="text/css">
+    <link rel="stylesheet" href="Prepare%20Cityscapes%20dataset.%20%E2%80%94%20gluoncv%200.5.0%20documentation_files/pygments.css" type="text/css">
+    <link rel="stylesheet" type="text/css" href="Prepare%20Cityscapes%20dataset.%20%E2%80%94%20gluoncv%200.5.0%20documentation_files/gallery.css">
+    <link rel="stylesheet" type="text/css" href="Prepare%20Cityscapes%20dataset.%20%E2%80%94%20gluoncv%200.5.0%20documentation_files/custom.css">
+    <link rel="stylesheet" href="Prepare%20Cityscapes%20dataset.%20%E2%80%94%20gluoncv%200.5.0%20documentation_files/material.css" type="text/css">
+    <link rel="stylesheet" href="Prepare%20Cityscapes%20dataset.%20%E2%80%94%20gluoncv%200.5.0%20documentation_files/sphinx_materialdesign_theme.css" type="text/css">
+    <link rel="stylesheet" href="Prepare%20Cityscapes%20dataset.%20%E2%80%94%20gluoncv%200.5.0%20documentation_files/all.css" type="text/css">
+    <link rel="stylesheet" href="Prepare%20Cityscapes%20dataset.%20%E2%80%94%20gluoncv%200.5.0%20documentation_files/fonts.css" type="text/css">
+    <script async="" src="Prepare%20Cityscapes%20dataset.%20%E2%80%94%20gluoncv%200.5.0%20documentation_files/analytics.js"></script><script type="text/javascript" id="documentation_options" data-url_root="../../" src="Prepare%20Cityscapes%20dataset.%20%E2%80%94%20gluoncv%200.5.0%20documentation_files/documentation_options.js"></script>
+    <script type="text/javascript" src="Prepare%20Cityscapes%20dataset.%20%E2%80%94%20gluoncv%200.5.0%20documentation_files/jquery.js"></script>
+    <script type="text/javascript" src="Prepare%20Cityscapes%20dataset.%20%E2%80%94%20gluoncv%200.5.0%20documentation_files/underscore.js"></script>
+    <script type="text/javascript" src="Prepare%20Cityscapes%20dataset.%20%E2%80%94%20gluoncv%200.5.0%20documentation_files/doctools.js"></script>
+    <script type="text/javascript" src="Prepare%20Cityscapes%20dataset.%20%E2%80%94%20gluoncv%200.5.0%20documentation_files/language_data.js"></script>
+    <script type="text/javascript" src="Prepare%20Cityscapes%20dataset.%20%E2%80%94%20gluoncv%200.5.0%20documentation_files/google_analytics.js"></script>
+    <script type="text/javascript" src="Prepare%20Cityscapes%20dataset.%20%E2%80%94%20gluoncv%200.5.0%20documentation_files/hidebib.js"></script>
+    <script type="text/javascript" src="Prepare%20Cityscapes%20dataset.%20%E2%80%94%20gluoncv%200.5.0%20documentation_files/install-options.js"></script>
+    <script async="async" type="text/javascript" src="Prepare%20Cityscapes%20dataset.%20%E2%80%94%20gluoncv%200.5.0%20documentation_files/latest.js"></script>
+    <script type="text/javascript" src="Prepare%20Cityscapes%20dataset.%20%E2%80%94%20gluoncv%200.5.0%20documentation_files/sphinx_materialdesign_theme.js"></script>
+    <link rel="shortcut icon" href="https://gluon-cv.mxnet.io/_static/gluon.ico">
+    <link rel="index" title="Index" href="https://gluon-cv.mxnet.io/genindex.html">
+    <link rel="search" title="Search" href="https://gluon-cv.mxnet.io/search.html">
+    <link rel="next" title="Prepare PASCAL VOC datasets" href="https://gluon-cv.mxnet.io/build/examples_datasets/pascal_voc.html">
+    <link rel="prev" title="Prepare COCO datasets" href="https://gluon-cv.mxnet.io/build/examples_datasets/mscoco.html">
+   
+
+  <script type="text/javascript" async="" src="Prepare%20Cityscapes%20dataset.%20%E2%80%94%20gluoncv%200.5.0%20documentation_files/MathJax.js"></script><style type="text/css">.MathJax_Hover_Frame {border-radius: .25em; -webkit-border-radius: .25em; -moz-border-radius: .25em; -khtml-border-radius: .25em; box-shadow: 0px 0px 15px #83A; -webkit-box-shadow: 0px 0px 15px #83A; -moz-box-shadow: 0px 0px 15px #83A; -khtml-box-shadow: 0px 0px 15px #83A; border: 1px solid #A6D ! important; display: inline-block; position: absolute}
+.MathJax_Menu_Button .MathJax_Hover_Arrow {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; -khtml-border-radius: 4px; font-family: 'Courier New',Courier; font-size: 9px; color: #F0F0F0}
+.MathJax_Menu_Button .MathJax_Hover_Arrow span {display: block; background-color: #AAA; border: 1px solid; border-radius: 3px; line-height: 0; padding: 4px}
+.MathJax_Hover_Arrow:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_Hover_Arrow:hover span {background-color: #CCC!important}
+</style><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_About.MathJax_MousePost {outline: none}
+.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 5px 0px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 5px; -webkit-border-radius: 5px; -moz-border-radius: 5px; -khtml-border-radius: 5px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_MenuItem {padding: 1px 2em; background: transparent}
+.MathJax_MenuArrow {position: absolute; right: .5em; padding-top: .25em; color: #666666; font-size: .75em}
+.MathJax_MenuActive .MathJax_MenuArrow {color: white}
+.MathJax_MenuArrow.RTL {left: .5em; right: auto}
+.MathJax_MenuCheck {position: absolute; left: .7em}
+.MathJax_MenuCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuRadioCheck {position: absolute; left: .7em}
+.MathJax_MenuRadioCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuLabel {padding: 1px 2em 3px 1.33em; font-style: italic}
+.MathJax_MenuRule {border-top: 1px solid #DDDDDD; margin: 4px 3px}
+.MathJax_MenuDisabled {color: GrayText}
+.MathJax_MenuActive {background-color: #606872; color: white}
+.MathJax_MenuDisabled:focus, .MathJax_MenuLabel:focus {background-color: #E8E8E8}
+.MathJax_ContextMenu:focus {outline: none}
+.MathJax_ContextMenu .MathJax_MenuItem:focus {outline: none}
+#MathJax_AboutClose {top: .2em; right: .2em}
+.MathJax_Menu .MathJax_MenuClose {top: -10px; left: -10px}
+.MathJax_MenuClose {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; font-family: 'Courier New',Courier; font-size: 24px; color: #F0F0F0}
+.MathJax_MenuClose span {display: block; background-color: #AAA; border: 1.5px solid; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; line-height: 0; padding: 8px 0 6px}
+.MathJax_MenuClose:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_MenuClose:hover span {background-color: #CCC!important}
+.MathJax_MenuClose:hover:focus {outline: none}
+</style><style type="text/css">.MathJax_Preview .MJXf-math {color: inherit!important}
+</style><style type="text/css">.MJX_Assistive_MathML {position: absolute!important; top: 0; left: 0; clip: rect(1px, 1px, 1px, 1px); padding: 1px 0 0 0!important; border: 0!important; height: 1px!important; width: 1px!important; overflow: hidden!important; display: block!important; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none}
+.MJX_Assistive_MathML.MJX_Assistive_MathML_Block {width: 100%!important}
+</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; width: 0}
+#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+</style><style type="text/css">.MathJax_Preview {color: #888}
+#MathJax_Message {position: fixed; left: 1px; bottom: 2px; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style><style type="text/css">.MJXp-script {font-size: .8em}
+.MJXp-right {-webkit-transform-origin: right; -moz-transform-origin: right; -ms-transform-origin: right; -o-transform-origin: right; transform-origin: right}
+.MJXp-bold {font-weight: bold}
+.MJXp-italic {font-style: italic}
+.MJXp-scr {font-family: MathJax_Script,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-frak {font-family: MathJax_Fraktur,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-sf {font-family: MathJax_SansSerif,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-cal {font-family: MathJax_Caligraphic,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-mono {font-family: MathJax_Typewriter,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-largeop {font-size: 150%}
+.MJXp-largeop.MJXp-int {vertical-align: -.2em}
+.MJXp-math {display: inline-block; line-height: 1.2; text-indent: 0; font-family: 'Times New Roman',Times,STIXGeneral,serif; white-space: nowrap; border-collapse: collapse}
+.MJXp-display {display: block; text-align: center; margin: 1em 0}
+.MJXp-math span {display: inline-block}
+.MJXp-box {display: block!important; text-align: center}
+.MJXp-box:after {content: " "}
+.MJXp-rule {display: block!important; margin-top: .1em}
+.MJXp-char {display: block!important}
+.MJXp-mo {margin: 0 .15em}
+.MJXp-mfrac {margin: 0 .125em; vertical-align: .25em}
+.MJXp-denom {display: inline-table!important; width: 100%}
+.MJXp-denom > * {display: table-row!important}
+.MJXp-surd {vertical-align: top}
+.MJXp-surd > * {display: block!important}
+.MJXp-script-box > *  {display: table!important; height: 50%}
+.MJXp-script-box > * > * {display: table-cell!important; vertical-align: top}
+.MJXp-script-box > *:last-child > * {vertical-align: bottom}
+.MJXp-script-box > * > * > * {display: block!important}
+.MJXp-mphantom {visibility: hidden}
+.MJXp-munderover, .MJXp-munder {display: inline-table!important}
+.MJXp-over {display: inline-block!important; text-align: center}
+.MJXp-over > * {display: block!important}
+.MJXp-munderover > *, .MJXp-munder > * {display: table-row!important}
+.MJXp-mtable {vertical-align: .25em; margin: 0 .125em}
+.MJXp-mtable > * {display: inline-table!important; vertical-align: middle}
+.MJXp-mtr {display: table-row!important}
+.MJXp-mtd {display: table-cell!important; text-align: center; padding: .5em 0 0 .5em}
+.MJXp-mtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-mlabeledtr {display: table-row!important}
+.MJXp-mlabeledtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mlabeledtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
+.MJXp-scale0 {-webkit-transform: scaleX(.0); -moz-transform: scaleX(.0); -ms-transform: scaleX(.0); -o-transform: scaleX(.0); transform: scaleX(.0)}
+.MJXp-scale1 {-webkit-transform: scaleX(.1); -moz-transform: scaleX(.1); -ms-transform: scaleX(.1); -o-transform: scaleX(.1); transform: scaleX(.1)}
+.MJXp-scale2 {-webkit-transform: scaleX(.2); -moz-transform: scaleX(.2); -ms-transform: scaleX(.2); -o-transform: scaleX(.2); transform: scaleX(.2)}
+.MJXp-scale3 {-webkit-transform: scaleX(.3); -moz-transform: scaleX(.3); -ms-transform: scaleX(.3); -o-transform: scaleX(.3); transform: scaleX(.3)}
+.MJXp-scale4 {-webkit-transform: scaleX(.4); -moz-transform: scaleX(.4); -ms-transform: scaleX(.4); -o-transform: scaleX(.4); transform: scaleX(.4)}
+.MJXp-scale5 {-webkit-transform: scaleX(.5); -moz-transform: scaleX(.5); -ms-transform: scaleX(.5); -o-transform: scaleX(.5); transform: scaleX(.5)}
+.MJXp-scale6 {-webkit-transform: scaleX(.6); -moz-transform: scaleX(.6); -ms-transform: scaleX(.6); -o-transform: scaleX(.6); transform: scaleX(.6)}
+.MJXp-scale7 {-webkit-transform: scaleX(.7); -moz-transform: scaleX(.7); -ms-transform: scaleX(.7); -o-transform: scaleX(.7); transform: scaleX(.7)}
+.MJXp-scale8 {-webkit-transform: scaleX(.8); -moz-transform: scaleX(.8); -ms-transform: scaleX(.8); -o-transform: scaleX(.8); transform: scaleX(.8)}
+.MJXp-scale9 {-webkit-transform: scaleX(.9); -moz-transform: scaleX(.9); -ms-transform: scaleX(.9); -o-transform: scaleX(.9); transform: scaleX(.9)}
+.MathJax_PHTML .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+</style></head>
+<body style="display: block;"><div id="MathJax_Message" style="display: none;"></div>
+    <div class="mdl-layout__container"><div class="mdl-layout mdl-js-layout mdl-layout--fixed-header mdl-layout--fixed-drawer has-drawer is-upgraded" data-upgraded=",MaterialLayout"><header class="mdl-layout__header mdl-layout__header--waterfall mdl-layout__header--scroll is-casting-shadow is-compact"><div aria-expanded="false" role="button" tabindex="0" class="mdl-layout__drawer-button"><i class="material-icons"></i></div>
+    <div class="mdl-layout__header-row">
+        
+        <nav class="mdl-navigation breadcrumb">
+            <a class="mdl-navigation__link" href="https://gluon-cv.mxnet.io/tutorials/index.html">Tutorials</a><i class="material-icons">navigate_next</i>
+            <a class="mdl-navigation__link" href="https://gluon-cv.mxnet.io/build/examples_datasets/index.html">Prepare Datasets</a><i class="material-icons">navigate_next</i>
+            <a class="mdl-navigation__link is-active">Prepare Cityscapes dataset.</a>
+        </nav>
+        <div class="mdl-layout-spacer"></div>
+        <nav class="mdl-navigation">
+        
+<form class="form-inline pull-sm-right" action="../../search.html" method="get">
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable mdl-textfield--floating-label mdl-textfield--align-right has-placeholder is-upgraded" data-upgraded=",MaterialTextfield">
+        <label id="quick-search-icon" class="mdl-button mdl-js-button mdl-button--icon" for="waterfall-exp" data-upgraded=",MaterialButton" tabindex="0">
+          <i class="material-icons">search</i>
+        </label>
+        <div class="mdl-textfield__expandable-holder">
+          <input class="mdl-textfield__input" type="text" name="q" id="waterfall-exp" placeholder="Search">
+          <input type="hidden" name="check_keywords" value="yes">
+          <input type="hidden" name="area" value="default">
+        </div>
+      </div>
+      <div class="mdl-tooltip" data-mdl-for="quick-search-icon" data-upgraded=",MaterialTooltip">
+      Quick search
+      </div>
+</form>
+        
+<a id="button-show-source" class="mdl-button mdl-js-button mdl-button--icon" href="https://gluon-cv.mxnet.io/_sources/build/examples_datasets/cityscapes.rst.txt" rel="nofollow" data-upgraded=",MaterialButton" tabindex="0">
+  <i class="material-icons">code</i>
+</a>
+<div class="mdl-tooltip" data-mdl-for="button-show-source" data-upgraded=",MaterialTooltip">
+Show Source
+</div>
+        </nav>
+    </div>
+    <div class="mdl-layout__header-row header-links">
+      <div class="mdl-layout-spacer"></div>
+      <nav class="mdl-navigation">
+          <a class="mdl-navigation__link" href="https://gluon-cv.mxnet.io/#installation.html">
+                  
+                  Install
+              </a>
+          <a class="mdl-navigation__link" href="https://gluon-cv.mxnet.io/tutorials/index.html">
+                  
+                  Tutorial
+              </a>
+          <a class="mdl-navigation__link" href="https://gluon-cv.mxnet.io/api/index.html">
+                  
+                  API
+              </a>
+          <a class="mdl-navigation__link" href="https://gluon-cv.mxnet.io/how_to/support.html">
+                  
+                  Community
+              </a>
+          <a class="mdl-navigation__link" href="https://gluon-cv.mxnet.io/how_to/contribute.html">
+                  
+                  Contribute
+              </a>
+          
+              <a class="mdl-navigation__link" href="https://github.com/dmlc/gluon-cv/">
+                  <i class="link"></i>
+                  GitHub
+              </a>
+      </nav>
+    </div>
+</header><header class="mdl-layout__drawer" aria-hidden="true">
+    
+          <!-- Title -->
+      <span class="mdl-layout-title">
+          <a class="title" href="https://gluon-cv.mxnet.io/index.html">
+              <img class="logo" src="Prepare%20Cityscapes%20dataset.%20%E2%80%94%20gluoncv%200.5.0%20documentation_files/gluon-logo.svg" alt="gluoncv">
+          </a>
+      </span>
+    
+    
+      <div class="globaltoc">
+        <span class="mdl-layout-title toc">Table Of Contents</span>
+        
+        
+            
+            <nav class="mdl-navigation">
+                <ul class="current">
+<li class="toctree-l1"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/install.html">Installation</a></span></li>
+<li class="toctree-l1">
+<span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/model_zoo/index.html">Model Zoo</a><span class="nav-toggle"><a class="mdl-button mdl-js-button mdl-button--icon" data-toggle="#globalnav-1" data-upgraded=",MaterialButton"><span style="color: #888"><i class="material-icons">keyboard_arrow_down</i></span></a></span></span><ul id="globalnav-1" class="collapse" style="display: none;">
+<li class="toctree-l2"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/model_zoo/classification.html">Classification</a></span></li>
+<li class="toctree-l2"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/model_zoo/detection.html">Detection</a></span></li>
+<li class="toctree-l2"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/model_zoo/segmentation.html">Segmentation</a></span></li>
+<li class="toctree-l2"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/model_zoo/pose.html">Pose Estimation</a></span></li>
+</ul></li>
+<li class="toctree-l1 current">
+<span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/tutorials/index.html">Tutorials</a><span class="nav-toggle show"><a class="mdl-button mdl-js-button mdl-button--icon" data-toggle="#globalnav-6" data-upgraded=",MaterialButton"><span style="color: #888"><i class="material-icons">keyboard_arrow_down</i></span></a></span></span><ul class="current collapse show" id="globalnav-6">
+<li class="toctree-l2">
+<span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_classification/index.html">Image Classification</a><span class="nav-toggle"><a class="mdl-button mdl-js-button mdl-button--icon" data-toggle="#globalnav-7" data-upgraded=",MaterialButton"><span style="color: #888"><i class="material-icons">keyboard_arrow_down</i></span></a></span></span><ul id="globalnav-7" class="collapse" style="display: none;">
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_classification/demo_cifar10.html">1. Getting Started with Pre-trained Model on CIFAR10</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_classification/dive_deep_cifar10.html">2. Dive Deep into Training with CIFAR10</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_classification/demo_imagenet.html">3. Getting Started with Pre-trained Models on ImageNet</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_classification/transfer_learning_minc.html">4. Transfer Learning with Your Own Image Dataset</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_classification/dive_deep_imagenet.html">5. Train Your Own Model on ImageNet</a></span></li>
+</ul></li>
+<li class="toctree-l2">
+<span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_detection/index.html">Object Detection</a><span class="nav-toggle"><a class="mdl-button mdl-js-button mdl-button--icon" data-toggle="#globalnav-13" data-upgraded=",MaterialButton"><span style="color: #888"><i class="material-icons">keyboard_arrow_down</i></span></a></span></span><ul id="globalnav-13" class="collapse" style="display: none;">
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_detection/demo_ssd.html">01. Predict with pre-trained SSD models</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_detection/demo_faster_rcnn.html">02. Predict with pre-trained Faster RCNN models</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_detection/demo_yolo.html">03. Predict with pre-trained YOLO models</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_detection/train_ssd_voc.html">04. Train SSD on Pascal VOC dataset</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_detection/train_ssd_advanced.html">05. Deep dive into SSD training: 3 tips to boost performance</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_detection/train_faster_rcnn_voc.html">06. Train Faster-RCNN end-to-end on PASCAL VOC</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_detection/train_yolo_v3.html">07. Train YOLOv3 on PASCAL VOC</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_detection/finetune_detection.html">08. Finetune a pretrained detection model</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_detection/demo_webcam.html">09. Run an object detection model on your webcam</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_detection/skip_fintune.html">10. Skip Finetuning by reusing part of pre-trained model</a></span></li>
+</ul></li>
+<li class="toctree-l2">
+<span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_instance/index.html">Instance Segmentation</a><span class="nav-toggle"><a class="mdl-button mdl-js-button mdl-button--icon" data-toggle="#globalnav-24" data-upgraded=",MaterialButton"><span style="color: #888"><i class="material-icons">keyboard_arrow_down</i></span></a></span></span><ul id="globalnav-24" class="collapse" style="display: none;">
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_instance/demo_mask_rcnn.html">1. Predict with pre-trained Mask RCNN models</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_instance/train_mask_rcnn_coco.html">2. Train Mask RCNN end-to-end on MS COCO</a></span></li>
+</ul></li>
+<li class="toctree-l2">
+<span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_segmentation/index.html">Semantic Segmentation</a><span class="nav-toggle"><a class="mdl-button mdl-js-button mdl-button--icon" data-toggle="#globalnav-27" data-upgraded=",MaterialButton"><span style="color: #888"><i class="material-icons">keyboard_arrow_down</i></span></a></span></span><ul id="globalnav-27" class="collapse" style="display: none;">
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_segmentation/demo_fcn.html">1. Getting Started with FCN Pre-trained Models</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_segmentation/demo_psp.html">2. Test with PSPNet Pre-trained Models</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_segmentation/demo_deeplab.html">3. Test with DeepLabV3 Pre-trained Models</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_segmentation/train_fcn.html">4. Train FCN on Pascal VOC Dataset</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_segmentation/train_psp.html">5. Train PSPNet on ADE20K Dataset</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_segmentation/voc_sota.html">6. Reproducing SoTA on Pascal VOC Dataset</a></span></li>
+</ul></li>
+<li class="toctree-l2">
+<span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_pose/index.html">Pose Estimation</a><span class="nav-toggle"><a class="mdl-button mdl-js-button mdl-button--icon" data-toggle="#globalnav-34" data-upgraded=",MaterialButton"><span style="color: #888"><i class="material-icons">keyboard_arrow_down</i></span></a></span></span><ul id="globalnav-34" class="collapse" style="display: none;">
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_pose/demo_simple_pose.html">1. Predict with pre-trained Simple Pose Estimation models</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_pose/dive_deep_simple_pose.html">2. Dive deep into Training a Simple Pose Model on COCO Keypoints</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_pose/cam_demo.html">3. Estimate pose from your webcam</a></span></li>
+</ul></li>
+<li class="toctree-l2 current">
+<span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_datasets/index.html">Prepare Datasets</a><span class="nav-toggle show"><a class="mdl-button mdl-js-button mdl-button--icon" data-toggle="#globalnav-38" data-upgraded=",MaterialButton"><span style="color: #888"><i class="material-icons">keyboard_arrow_down</i></span></a></span></span><ul class="current collapse show" id="globalnav-38">
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_datasets/ade20k.html">Prepare ADE20K dataset.</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_datasets/mscoco.html">Prepare COCO datasets</a></span></li>
+<li class="toctree-l3 current"><span class="link-wrapper"><a class="current reference internal mdl-color-text--primary" href="#">Prepare Cityscapes dataset.</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_datasets/pascal_voc.html">Prepare PASCAL VOC datasets</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_datasets/detection_custom.html">Prepare custom datasets for object detection</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_datasets/imagenet.html">Prepare the ImageNet dataset</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_datasets/recordio.html">Prepare your dataset in ImageRecord format</a></span></li>
+</ul></li>
+<li class="toctree-l2">
+<span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_deployment/index.html">Deployment</a><span class="nav-toggle"><a class="mdl-button mdl-js-button mdl-button--icon" data-toggle="#globalnav-46" data-upgraded=",MaterialButton"><span style="color: #888"><i class="material-icons">keyboard_arrow_down</i></span></a></span></span><ul id="globalnav-46" class="collapse" style="display: none;">
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_deployment/export_network.html">1. Export trained GluonCV network to JSON</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_deployment/cpp_inference.html">2. GluonCV C++ Inference Demo</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_deployment/int8_inference.html">3. Inference with Quantized Models</a></span></li>
+</ul></li>
+</ul></li>
+<li class="toctree-l1">
+<span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/api/index.html">API Reference</a><span class="nav-toggle"><a class="mdl-button mdl-js-button mdl-button--icon" data-toggle="#globalnav-50" data-upgraded=",MaterialButton"><span style="color: #888"><i class="material-icons">keyboard_arrow_down</i></span></a></span></span><ul id="globalnav-50" class="collapse" style="display: none;">
+<li class="toctree-l2"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/api/data.datasets.html">gluoncv.data</a></span></li>
+<li class="toctree-l2"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/api/data.batchify.html">gluoncv.data.batchify</a></span></li>
+<li class="toctree-l2"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/api/data.transforms.html">gluoncv.data.transforms</a></span></li>
+<li class="toctree-l2"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/api/model_zoo.html">gluoncv.model_zoo</a></span></li>
+<li class="toctree-l2"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/api/nn.html">gluoncv.nn</a></span></li>
+<li class="toctree-l2"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/api/loss.html">gluoncv.loss</a></span></li>
+<li class="toctree-l2"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/api/utils.html">gluoncv.utils</a></span></li>
+</ul></li>
+<li class="toctree-l1">
+<span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/how_to/index.html">Community</a><span class="nav-toggle"><a class="mdl-button mdl-js-button mdl-button--icon" data-toggle="#globalnav-58" data-upgraded=",MaterialButton"><span style="color: #888"><i class="material-icons">keyboard_arrow_down</i></span></a></span></span><ul id="globalnav-58" class="collapse" style="display: none;">
+<li class="toctree-l2"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/how_to/support.html">Community</a></span></li>
+<li class="toctree-l2"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/how_to/contribute.html">Contribute to GluonCV</a></span></li>
+</ul></li>
+<li class="toctree-l1"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/slides.html">Slides</a></span></li>
+</ul>
+
+            </nav>
+        
+        </div>
+    
+</header>
+        <main class="mdl-layout__content" tabindex="0">
+<header class="mdl-layout__drawer">
+    
+          <!-- Title -->
+      <span class="mdl-layout-title">
+          <a class="title" href="https://gluon-cv.mxnet.io/index.html">
+              <img class="logo" src="Prepare%20Cityscapes%20dataset.%20%E2%80%94%20gluoncv%200.5.0%20documentation_files/gluon-logo.svg" alt="gluoncv">
+          </a>
+      </span>
+    
+    
+      <div class="globaltoc">
+        <span class="mdl-layout-title toc">Table Of Contents</span>
+        
+        
+            
+            <nav class="mdl-navigation">
+                <ul class="current">
+<li class="toctree-l1"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/install.html">Installation</a></span></li>
+<li class="toctree-l1">
+<span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/model_zoo/index.html">Model Zoo</a><span class="nav-toggle"><a class="mdl-button mdl-js-button mdl-button--icon" data-toggle="#globalnav-63" data-upgraded=",MaterialButton"><span style="color: #888"><i class="material-icons">keyboard_arrow_down</i></span></a></span></span><ul id="globalnav-63" class="collapse" style="display: none;">
+<li class="toctree-l2"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/model_zoo/classification.html">Classification</a></span></li>
+<li class="toctree-l2"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/model_zoo/detection.html">Detection</a></span></li>
+<li class="toctree-l2"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/model_zoo/segmentation.html">Segmentation</a></span></li>
+<li class="toctree-l2"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/model_zoo/pose.html">Pose Estimation</a></span></li>
+</ul></li>
+<li class="toctree-l1 current">
+<span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/tutorials/index.html">Tutorials</a><span class="nav-toggle show"><a class="mdl-button mdl-js-button mdl-button--icon" data-toggle="#globalnav-68" data-upgraded=",MaterialButton"><span style="color: #888"><i class="material-icons">keyboard_arrow_down</i></span></a></span></span><ul class="current collapse show" id="globalnav-68">
+<li class="toctree-l2">
+<span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_classification/index.html">Image Classification</a><span class="nav-toggle"><a class="mdl-button mdl-js-button mdl-button--icon" data-toggle="#globalnav-69" data-upgraded=",MaterialButton"><span style="color: #888"><i class="material-icons">keyboard_arrow_down</i></span></a></span></span><ul id="globalnav-69" class="collapse" style="display: none;">
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_classification/demo_cifar10.html">1. Getting Started with Pre-trained Model on CIFAR10</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_classification/dive_deep_cifar10.html">2. Dive Deep into Training with CIFAR10</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_classification/demo_imagenet.html">3. Getting Started with Pre-trained Models on ImageNet</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_classification/transfer_learning_minc.html">4. Transfer Learning with Your Own Image Dataset</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_classification/dive_deep_imagenet.html">5. Train Your Own Model on ImageNet</a></span></li>
+</ul></li>
+<li class="toctree-l2">
+<span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_detection/index.html">Object Detection</a><span class="nav-toggle"><a class="mdl-button mdl-js-button mdl-button--icon" data-toggle="#globalnav-75" data-upgraded=",MaterialButton"><span style="color: #888"><i class="material-icons">keyboard_arrow_down</i></span></a></span></span><ul id="globalnav-75" class="collapse" style="display: none;">
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_detection/demo_ssd.html">01. Predict with pre-trained SSD models</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_detection/demo_faster_rcnn.html">02. Predict with pre-trained Faster RCNN models</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_detection/demo_yolo.html">03. Predict with pre-trained YOLO models</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_detection/train_ssd_voc.html">04. Train SSD on Pascal VOC dataset</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_detection/train_ssd_advanced.html">05. Deep dive into SSD training: 3 tips to boost performance</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_detection/train_faster_rcnn_voc.html">06. Train Faster-RCNN end-to-end on PASCAL VOC</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_detection/train_yolo_v3.html">07. Train YOLOv3 on PASCAL VOC</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_detection/finetune_detection.html">08. Finetune a pretrained detection model</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_detection/demo_webcam.html">09. Run an object detection model on your webcam</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_detection/skip_fintune.html">10. Skip Finetuning by reusing part of pre-trained model</a></span></li>
+</ul></li>
+<li class="toctree-l2">
+<span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_instance/index.html">Instance Segmentation</a><span class="nav-toggle"><a class="mdl-button mdl-js-button mdl-button--icon" data-toggle="#globalnav-86" data-upgraded=",MaterialButton"><span style="color: #888"><i class="material-icons">keyboard_arrow_down</i></span></a></span></span><ul id="globalnav-86" class="collapse" style="display: none;">
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_instance/demo_mask_rcnn.html">1. Predict with pre-trained Mask RCNN models</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_instance/train_mask_rcnn_coco.html">2. Train Mask RCNN end-to-end on MS COCO</a></span></li>
+</ul></li>
+<li class="toctree-l2">
+<span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_segmentation/index.html">Semantic Segmentation</a><span class="nav-toggle"><a class="mdl-button mdl-js-button mdl-button--icon" data-toggle="#globalnav-89" data-upgraded=",MaterialButton"><span style="color: #888"><i class="material-icons">keyboard_arrow_down</i></span></a></span></span><ul id="globalnav-89" class="collapse" style="display: none;">
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_segmentation/demo_fcn.html">1. Getting Started with FCN Pre-trained Models</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_segmentation/demo_psp.html">2. Test with PSPNet Pre-trained Models</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_segmentation/demo_deeplab.html">3. Test with DeepLabV3 Pre-trained Models</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_segmentation/train_fcn.html">4. Train FCN on Pascal VOC Dataset</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_segmentation/train_psp.html">5. Train PSPNet on ADE20K Dataset</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_segmentation/voc_sota.html">6. Reproducing SoTA on Pascal VOC Dataset</a></span></li>
+</ul></li>
+<li class="toctree-l2">
+<span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_pose/index.html">Pose Estimation</a><span class="nav-toggle"><a class="mdl-button mdl-js-button mdl-button--icon" data-toggle="#globalnav-96" data-upgraded=",MaterialButton"><span style="color: #888"><i class="material-icons">keyboard_arrow_down</i></span></a></span></span><ul id="globalnav-96" class="collapse" style="display: none;">
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_pose/demo_simple_pose.html">1. Predict with pre-trained Simple Pose Estimation models</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_pose/dive_deep_simple_pose.html">2. Dive deep into Training a Simple Pose Model on COCO Keypoints</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_pose/cam_demo.html">3. Estimate pose from your webcam</a></span></li>
+</ul></li>
+<li class="toctree-l2 current">
+<span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_datasets/index.html">Prepare Datasets</a><span class="nav-toggle show"><a class="mdl-button mdl-js-button mdl-button--icon" data-toggle="#globalnav-100" data-upgraded=",MaterialButton"><span style="color: #888"><i class="material-icons">keyboard_arrow_down</i></span></a></span></span><ul class="current collapse show" id="globalnav-100">
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_datasets/ade20k.html">Prepare ADE20K dataset.</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_datasets/mscoco.html">Prepare COCO datasets</a></span></li>
+<li class="toctree-l3 current"><span class="link-wrapper"><a class="current reference internal mdl-color-text--primary" href="#">Prepare Cityscapes dataset.</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_datasets/pascal_voc.html">Prepare PASCAL VOC datasets</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_datasets/detection_custom.html">Prepare custom datasets for object detection</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_datasets/imagenet.html">Prepare the ImageNet dataset</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_datasets/recordio.html">Prepare your dataset in ImageRecord format</a></span></li>
+</ul></li>
+<li class="toctree-l2">
+<span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_deployment/index.html">Deployment</a><span class="nav-toggle"><a class="mdl-button mdl-js-button mdl-button--icon" data-toggle="#globalnav-108" data-upgraded=",MaterialButton"><span style="color: #888"><i class="material-icons">keyboard_arrow_down</i></span></a></span></span><ul id="globalnav-108" class="collapse" style="display: none;">
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_deployment/export_network.html">1. Export trained GluonCV network to JSON</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_deployment/cpp_inference.html">2. GluonCV C++ Inference Demo</a></span></li>
+<li class="toctree-l3"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/build/examples_deployment/int8_inference.html">3. Inference with Quantized Models</a></span></li>
+</ul></li>
+</ul></li>
+<li class="toctree-l1">
+<span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/api/index.html">API Reference</a><span class="nav-toggle"><a class="mdl-button mdl-js-button mdl-button--icon" data-toggle="#globalnav-112" data-upgraded=",MaterialButton"><span style="color: #888"><i class="material-icons">keyboard_arrow_down</i></span></a></span></span><ul id="globalnav-112" class="collapse" style="display: none;">
+<li class="toctree-l2"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/api/data.datasets.html">gluoncv.data</a></span></li>
+<li class="toctree-l2"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/api/data.batchify.html">gluoncv.data.batchify</a></span></li>
+<li class="toctree-l2"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/api/data.transforms.html">gluoncv.data.transforms</a></span></li>
+<li class="toctree-l2"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/api/model_zoo.html">gluoncv.model_zoo</a></span></li>
+<li class="toctree-l2"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/api/nn.html">gluoncv.nn</a></span></li>
+<li class="toctree-l2"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/api/loss.html">gluoncv.loss</a></span></li>
+<li class="toctree-l2"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/api/utils.html">gluoncv.utils</a></span></li>
+</ul></li>
+<li class="toctree-l1">
+<span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/how_to/index.html">Community</a><span class="nav-toggle"><a class="mdl-button mdl-js-button mdl-button--icon" data-toggle="#globalnav-120" data-upgraded=",MaterialButton"><span style="color: #888"><i class="material-icons">keyboard_arrow_down</i></span></a></span></span><ul id="globalnav-120" class="collapse" style="display: none;">
+<li class="toctree-l2"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/how_to/support.html">Community</a></span></li>
+<li class="toctree-l2"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/how_to/contribute.html">Contribute to GluonCV</a></span></li>
+</ul></li>
+<li class="toctree-l1"><span class="link-wrapper"><a class="reference internal" href="https://gluon-cv.mxnet.io/slides.html">Slides</a></span></li>
+</ul>
+
+            </nav>
+        
+        </div>
+    
+</header>
+
+    <div class="document">
+        <div class="page-content">
+        
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-build-examples-datasets-cityscapes-py"><span class="std std-ref">here</span></a> to download the full example code</p>
+</div>
+<div class="sphx-glr-example-title section" id="prepare-cityscapes-dataset">
+<span id="sphx-glr-build-examples-datasets-cityscapes-py"></span><h1 class="mdl-color-text--primary">Prepare Cityscapes dataset.<a class="headerlink" href="#prepare-cityscapes-dataset" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="http://sceneparsing.csail.mit.edu/">Cityscapes</a>  focuses on semantic understanding of
+urban street scenes. This tutorial help you to download Cityscapes and set it up for later experiments.</p>
+<a class="reference internal image-reference" href="https://www.cityscapes-dataset.com/wordpress/wp-content/uploads/2015/07/stuttgart02-2040x500.png"><img alt="https://www.cityscapes-dataset.com/wordpress/wp-content/uploads/2015/07/stuttgart02-2040x500.png" src="Prepare%20Cityscapes%20dataset.%20%E2%80%94%20gluoncv%200.5.0%20documentation_files/stuttgart02-2040x500.png" style="width: 600px;"></a>
+<div class="section" id="prepare-the-dataset">
+<h2 class="mdl-color-text--primary">Prepare the dataset<a class="headerlink" href="#prepare-the-dataset" title="Permalink to this headline">¶</a></h2>
+<p>Please login and download the files <cite>gtFine_trainvaltest.zip</cite> and <cite>leftImg8bit_trainvaltest.zip</cite> to
+the current folder:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 83%">
+<col style="width: 17%">
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>File name</p></th>
+<th class="head"><p>Size</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>gtFine_trainvaltest.zip</p></td>
+<td><p>253 MB</p></td>
+</tr>
+<tr class="row-odd"><td><p>leftImg8bit_trainvaltest.zip</p></td>
+<td><p>12 GB</p></td>
+</tr>
+</tbody>
+</table>
+<p>Then run this script:</p>
+<blockquote>
+<div><p><a class="reference download internal" download="" href="https://gluon-cv.mxnet.io/_downloads/d786a3afe18f35d95cfc543ab1ce7d06/cityscapes.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">script:</span> <span class="pre">cityscapes.py</span></code></a></p>
+</div></blockquote>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python cityscapes.py
+</pre></div>
+</div>
+</div>
+<div class="section" id="how-to-load-the-dataset">
+<h2 class="mdl-color-text--primary">How to load the dataset<a class="headerlink" href="#how-to-load-the-dataset" title="Permalink to this headline">¶</a></h2>
+<p>Loading images and labels from Cityscapes is straight-forward
+with GluonCV’s dataset utility:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">gluoncv.data</span> <span class="k">import</span> <span class="n">CitySegmentation</span>
+<span class="n">train_dataset</span> <span class="o">=</span> <span class="n">CitySegmentation</span><span class="p">(</span><span class="n">split</span><span class="o">=</span><span class="s1">'train'</span><span class="p">)</span>
+<span class="n">val_dataset</span> <span class="o">=</span> <span class="n">CitySegmentation</span><span class="p">(</span><span class="n">split</span><span class="o">=</span><span class="s1">'val'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Training images:'</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Validation images:'</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">val_dataset</span><span class="p">))</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Found 2975 images in the folder /var/lib/jenkins/.mxnet/datasets/citys/leftImg8bit/train
+Found 500 images in the folder /var/lib/jenkins/.mxnet/datasets/citys/leftImg8bit/val
+Training images: 2975
+Validation images: 500
+</pre></div>
+</div>
+</div>
+<div class="section" id="get-the-first-sample">
+<h2 class="mdl-color-text--primary">Get the first sample<a class="headerlink" href="#get-the-first-sample" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="n">img</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">val_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="c1"># get pallete for the mask</span>
+<span class="kn">from</span> <span class="nn">gluoncv.utils.viz</span> <span class="k">import</span> <span class="n">get_color_pallete</span>
+<span class="n">mask</span> <span class="o">=</span> <span class="n">get_color_pallete</span><span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">asnumpy</span><span class="p">(),</span> <span class="n">dataset</span><span class="o">=</span><span class="s1">'citys'</span><span class="p">)</span>
+<span class="n">mask</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s1">'mask.png'</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="visualize-data-and-label">
+<h2 class="mdl-color-text--primary">Visualize data and label<a class="headerlink" href="#visualize-data-and-label" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.image</span> <span class="k">as</span> <span class="nn">mpimg</span>
+<span class="c1"># subplot 1 for img</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">asnumpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">'uint8'</span><span class="p">))</span>
+<span class="c1"># subplot 2 for the mask</span>
+<span class="n">mmask</span> <span class="o">=</span> <span class="n">mpimg</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s1">'mask.png'</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">mmask</span><span class="p">)</span>
+<span class="c1"># display</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="../../_images/sphx_glr_cityscapes_001.png" class="sphx-glr-single-img" src="Prepare%20Cityscapes%20dataset.%20%E2%80%94%20gluoncv%200.5.0%20documentation_files/sphx_glr_cityscapes_001.png">
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  0.354 seconds)</p>
+<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-build-examples-datasets-cityscapes-py">
+<div class="sphx-glr-download docutils container">
+<p><a class="reference download internal" download="" href="https://gluon-cv.mxnet.io/_downloads/5f29695b064b8b5bb24c8b20533c1034/cityscapes.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">cityscapes.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download docutils container">
+<p><a class="reference download internal" download="" href="https://gluon-cv.mxnet.io/_downloads/9149712dbefec2ed41ac7150c1bd3d9b/cityscapes.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">cityscapes.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io/">Gallery generated by Sphinx-Gallery</a></p>
+</div>
+</div>
+
+
+        </div>
+        <div class="side-doc-outline">
+            <div class="side-doc-outline--content" style="height: 895px;"> 
+<div class="localtoc">
+    <p class="caption">
+      <span class="caption-text">Table Of Contents</span>
+    </p>
+    <ul>
+<li><a class="reference internal" href="#">Prepare Cityscapes dataset.</a><ul>
+<li><a class="reference internal current mdl-color-text--primary" href="#prepare-the-dataset">Prepare the dataset</a></li>
+<li><a class="reference internal" href="#how-to-load-the-dataset">How to load the dataset</a></li>
+<li><a class="reference internal" href="#get-the-first-sample">Get the first sample</a></li>
+<li><a class="reference internal" href="#visualize-data-and-label">Visualize data and label</a></li>
+</ul>
+</li>
+</ul>
+
+</div>
+            </div>
+        </div>
+
+      <div class="clearer"></div>
+    </div><div class="pagenation">
+     <a id="button-prev" href="https://gluon-cv.mxnet.io/build/examples_datasets/mscoco.html" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--colored" role="botton" accesskey="P" data-upgraded=",MaterialButton,MaterialRipple">
+         <i class="pagenation-arrow-L fas fa-arrow-left fa-lg"></i>
+         <div class="pagenation-text">
+            <span class="pagenation-direction">Previous</span>
+            <div>Prepare COCO datasets</div>
+         </div>
+     <span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></a>
+     <a id="button-next" href="https://gluon-cv.mxnet.io/build/examples_datasets/pascal_voc.html" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--colored" role="botton" accesskey="N" data-upgraded=",MaterialButton,MaterialRipple">
+         <i class="pagenation-arrow-R fas fa-arrow-right fa-lg"></i>
+        <div class="pagenation-text">
+            <span class="pagenation-direction">Next</span>
+            <div>Prepare PASCAL VOC datasets</div>
+        </div>
+     <span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></a>
+  </div>
+        
+        </main>
+    <div class="mdl-layout__obfuscator"></div></div></div>
+  
+</body></html>

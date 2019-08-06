@@ -1,0 +1,7 @@
+
+*.pyc
+*__pycache__
+dataset/
+*.npy
+SegNet-tensorflow
+*.png
