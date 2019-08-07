@@ -5,7 +5,7 @@
 import os 
 
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="4"
+os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
 import numpy as np
 import tensorflow as tf
@@ -19,6 +19,7 @@ val_dataset = CitySegmentation(split='val')
 train_examples = len(train_dataset)
 val_examples = len(val_dataset)
 '''
+
 '''
 dataset = np.load('dataset.npy', allow_pickle=True).item()
 x_train, y_train = dataset['x_val'], dataset['y_val']
@@ -26,6 +27,7 @@ x_train, y_train = dataset['x_val'], dataset['y_val']
 print (np.shape(x_train))
 print (np.shape(y_train))
 '''
+
 batch_size = 5
 epochs = 10
 
@@ -57,11 +59,13 @@ def encoder_block(x, filter_size, pool_size):
     bn2   = tf.layers.batch_normalization(conv2)
     relu2 = tf.nn.relu(bn2)
 
-    pool, idx, shape = max_pool(inputs=relu2)
+    pool, idx, shape = max_pool(relu2)
     return pool, idx, shape
 
-def decoder_block(pool, idx, shape, filter_size, pool_size):
-    conv1 = tf.layers.conv2d(inputs=x, filters=filter_size, kernel_size=[3, 3], padding='same')
+def decoder_block(x, idx, shape, filter_size, pool_size):
+    unpool = up_sampling(x, idx, shape, batch_size)
+
+    conv1 = tf.layers.conv2d(inputs=unpool, filters=filter_size, kernel_size=[3, 3], padding='same')
     bn1   = tf.layers.batch_normalization(conv1)
     relu1 = tf.nn.relu(bn1)
 
@@ -69,8 +73,7 @@ def decoder_block(pool, idx, shape, filter_size, pool_size):
     bn2   = tf.layers.batch_normalization(conv2)
     relu2 = tf.nn.relu(bn2)
 
-    up = up_sampling(pool, idx, shape, batch_size)
-    return up
+    return relu2
 
 ####################################
 
@@ -82,10 +85,17 @@ encode2, idx2, shape2 = encoder_block(encode1, 128, 2)
 encode3, idx3, shape3 = encoder_block(encode2, 256, 2)
 encode4, idx4, shape4 = encoder_block(encode3, 512, 2)
 
-decode1               = decoder_block(encode4, idx4, shape4, 512, 2)
-decode2               = decoder_block(decode1, idx3, shape3, 256, 2)
-decode3               = decoder_block(decode2, idx2, shape2, 128, 2)
-decode4               = decoder_block(decode3, idx1, shape1, 64,  2)
+# had issue with channel size in decode blocks.
+# if corresponding output block output 256 channels, we need to give it back 256 channels.
+# but with vgg you have 2 filters:
+# 256, 512 and 512, 512
+# so we were just saying num filters = 512 like the encoder case
+# but for decoder this has to be different. 
+
+decode1               = decoder_block(encode4, idx4, shape4, 256, 2)
+decode2               = decoder_block(decode1, idx3, shape3, 128, 2)
+decode3               = decoder_block(decode2, idx2, shape2, 64,  2)
+decode4               = decoder_block(decode3, idx1, shape1, 30,  2)
 
 '''
 out                   = tf.layers.conv2d(inputs=decode4, filters=30, kernel_size=[3, 3], padding='same')
@@ -107,14 +117,20 @@ tf.global_variables_initializer().run()
 
 for ii in range(epochs):
     for jj in range(0, 500, batch_size):
+        '''        
         s = jj
         e = jj + batch_size
-        # xs = x_train[s:e]
-        # ys = y_train[s:e]
+        xs = x_train[s:e]
+        ys = y_train[s:e]
+        '''
         xs = np.random.uniform(size=(5, 480, 480, 3))
         ys = np.random.uniform(size=(5, 480, 480))
-        [e4, d4] = sess.run([encode4, decode4], feed_dict={x: xs, y: ys})
-        print (np.shape(e4), np.shape(d4))
+
+        # [e1, e2, e3, e4] = sess.run([encode1, encode2, encode3, encode4, decode2], feed_dict={x: xs, y: ys})
+        # print (np.shape(e1), np.shape(e2), np.shape(e3), np.shape(e4), shape1, shape2, shape3, shape4)
+
+        [d1, d2, d3, d4] = sess.run([decode1, decode2, decode3, decode4], feed_dict={x: xs, y: ys})        
+        print (np.shape(d1), np.shape(d2), np.shape(d3), np.shape(d4))
 
 
 
