@@ -2,17 +2,30 @@
 # https://github.com/toimcio/SegNet-tensorflow/blob/master/layers_object.py
 # how they did it.
 
+import os 
+
+os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"]="4"
+
 import numpy as np
 import tensorflow as tf
 import keras
 from gluoncv.data import CitySegmentation
 
+'''
 train_dataset = CitySegmentation(split='train')
 val_dataset = CitySegmentation(split='val')
 
 train_examples = len(train_dataset)
 val_examples = len(val_dataset)
+'''
+'''
+dataset = np.load('dataset.npy', allow_pickle=True).item()
+x_train, y_train = dataset['x_val'], dataset['y_val']
 
+print (np.shape(x_train))
+print (np.shape(y_train))
+'''
 batch_size = 5
 epochs = 10
 
@@ -61,52 +74,47 @@ def decoder_block(pool, idx, shape, filter_size, pool_size):
 
 ####################################
 
-x = tf.placeholder(tf.float32, [None, 480, 480, 3])
-y = tf.placeholder(tf.float32, [None, 480, 480])
+x = tf.placeholder(tf.float32, [5, 480, 480, 3])
+y = tf.placeholder(tf.int64, [5, 480, 480])
 
-encode1, idx1, shape1 = encoder_block(bn,      64,  2)
+encode1, idx1, shape1 = encoder_block(x,       64,  2)
 encode2, idx2, shape2 = encoder_block(encode1, 128, 2)
 encode3, idx3, shape3 = encoder_block(encode2, 256, 2)
 encode4, idx4, shape4 = encoder_block(encode3, 512, 2)
 
 decode1               = decoder_block(encode4, idx4, shape4, 512, 2)
-decode2               = decoder_block(encode3, idx3, shape3, 256, 2)
-decode3               = decoder_block(encode2, idx2, shape2, 128, 2)
-decode4               = decoder_block(encode1, idx1, shape1, 64,  2)
+decode2               = decoder_block(decode1, idx3, shape3, 256, 2)
+decode3               = decoder_block(decode2, idx2, shape2, 128, 2)
+decode4               = decoder_block(decode3, idx1, shape1, 64,  2)
 
-out = tf.softmax(decode4)
+'''
+out                   = tf.layers.conv2d(inputs=decode4, filters=30, kernel_size=[3, 3], padding='same')
+predict               = tf.nn.softmax(out)
+'''
 
 ####################################
-
-predict = tf.argmax(out, axis=3)
-correct = tf.equal(predict, tf.argmax(y, 1))
+'''
+correct = tf.equal(tf.argmax(predict, axis=3), y)
 sum_correct = tf.reduce_sum(tf.cast(correct, tf.float32))
 
-loss = tf.nn.softmax_cross_entropy_with_logits_v2(labels=y, logits=pred)
+loss = tf.nn.softmax_cross_entropy_with_logits_v2(labels=y, logits=out)
 train = tf.train.AdamOptimizer(learning_rate=1e-2, epsilon=1.).minimize(loss)
-
+'''
 ####################################
 
 sess = tf.InteractiveSession()
 tf.global_variables_initializer().run()
 
 for ii in range(epochs):
-    for jj in range(0, train_examples, batch_size):
+    for jj in range(0, 500, batch_size):
         s = jj
         e = jj + batch_size
-        xs = x_train[s:e]
-        ys = y_train[s:e]
-        sess.run([train], feed_dict={x: xs, y: ys})
-        
-    total_correct = 0
-    for jj in range(0, val_examples, batch_size):
-        s = jj
-        e = jj + batch_size
-        xs = x_test[s:e]
-        ys = y_test[s:e]
-        _sum_correct = sess.run(sum_correct, feed_dict={x: xs, y: ys})
-        total_correct += _sum_correct
-            
-    print ("acc: " + str(total_correct * 1.0 / 10000))
-        
-        
+        # xs = x_train[s:e]
+        # ys = y_train[s:e]
+        xs = np.random.uniform(size=(5, 480, 480, 3))
+        ys = np.random.uniform(size=(5, 480, 480))
+        [e4, d4] = sess.run([encode4, decode4], feed_dict={x: xs, y: ys})
+        print (np.shape(e4), np.shape(d4))
+
+
+
