@@ -79,6 +79,7 @@ def decoder_block(x, idx, shape, filter_size, pool_size):
 
 x = tf.placeholder(tf.float32, [5, 480, 480, 3])
 y = tf.placeholder(tf.int64, [5, 480, 480])
+labels = tf.one_hot(y, depth=30, axis=-1)
 
 encode1, idx1, shape1 = encoder_block(x,       64,  2)
 encode2, idx2, shape2 = encoder_block(encode1, 128, 2)
@@ -97,25 +98,24 @@ decode2               = decoder_block(decode1, idx3, shape3, 128, 2)
 decode3               = decoder_block(decode2, idx2, shape2, 64,  2)
 decode4               = decoder_block(decode3, idx1, shape1, 30,  2)
 
-'''
-out                   = tf.layers.conv2d(inputs=decode4, filters=30, kernel_size=[3, 3], padding='same')
-predict               = tf.nn.softmax(out)
-'''
+out                   = decode4
+predict               = tf.argmax(tf.nn.softmax(out), axis=3)
 
 ####################################
-'''
-correct = tf.equal(tf.argmax(predict, axis=3), y)
+
+correct = tf.equal(predict, y)
 sum_correct = tf.reduce_sum(tf.cast(correct, tf.float32))
 
-loss = tf.nn.softmax_cross_entropy_with_logits_v2(labels=y, logits=out)
+loss = tf.nn.softmax_cross_entropy_with_logits_v2(labels=labels, logits=out)
 train = tf.train.AdamOptimizer(learning_rate=1e-2, epsilon=1.).minimize(loss)
-'''
+
 ####################################
 
 sess = tf.InteractiveSession()
 tf.global_variables_initializer().run()
 
 for ii in range(epochs):
+    total_correct = 0 
     for jj in range(0, 500, batch_size):
         '''        
         s = jj
@@ -129,8 +129,14 @@ for ii in range(epochs):
         # [e1, e2, e3, e4] = sess.run([encode1, encode2, encode3, encode4, decode2], feed_dict={x: xs, y: ys})
         # print (np.shape(e1), np.shape(e2), np.shape(e3), np.shape(e4), shape1, shape2, shape3, shape4)
 
-        [d1, d2, d3, d4] = sess.run([decode1, decode2, decode3, decode4], feed_dict={x: xs, y: ys})        
-        print (np.shape(d1), np.shape(d2), np.shape(d3), np.shape(d4))
+        # [d1, d2, d3, d4] = sess.run([decode1, decode2, decode3, decode4], feed_dict={x: xs, y: ys})        
+        # print (np.shape(d1), np.shape(d2), np.shape(d3), np.shape(d4))
+
+        [_sum_correct, _labels] = sess.run([sum_correct], feed_dict={x: xs, y: ys})
+        total_correct += _sum_correct
+
+    print (total_correct)
+
 
 
 
