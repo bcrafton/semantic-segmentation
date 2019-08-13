@@ -153,7 +153,8 @@ for ii in range(args.epochs):
         total_correct.append(c)
         losses.append(l)
 
-        print ('%d %f %f' % (jj, np.average(total_correct) / (args.batch_size * 480. * 480.), np.average(losses)))
+        if (jj % 100 == 0):
+            print ('%d %f %f' % (jj, np.average(total_correct) / (args.batch_size * 480. * 480.), np.average(losses)))
 
 ####################################
 
