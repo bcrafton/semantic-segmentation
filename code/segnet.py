@@ -18,13 +18,13 @@ from lib.SegNet import SegNet
 
 ####################################
 
-# train_dataset = CitySegmentation(split='train')
-# train_examples = len(train_dataset)
+train_dataset = CitySegmentation(split='train')
+train_examples = len(train_dataset)
 
 val_dataset = CitySegmentation(split='val')
 val_examples = len(val_dataset)
 
-batch_size = 1
+batch_size = 5
 epochs = 10
 
 ####################################
@@ -55,16 +55,21 @@ for ii in range(epochs):
     total_correct = 0.
     total_labels = 0.
     losses = []
-    for jj in range(0, 500, batch_size):
+    for jj in range(0, train_examples, batch_size):
 
-        x, y = val_dataset[jj]
-        xs = x.asnumpy().reshape([1, 480, 480, 3])
-        ys = y.asnumpy().reshape([1, 480, 480])
+        xs = []
+        ys = []
+        for kk in range(batch_size):
+            x, y = train_dataset[jj]
+            xs.append(x.asnumpy())
+            ys.append(y.asnumpy())
+        xs = np.stack(xs, axis=0)
+        ys = np.stack(ys, axis=0)
 
         [_sum_correct, _loss, _] = sess.run([sum_correct, loss, train], feed_dict={image: xs, label: ys})
 
         total_correct += _sum_correct
-        total_labels += 1 * 480 * 480
+        total_labels += batch_size * 480 * 480
         losses.append(_loss)        
         
         print ('%d %f %f' % (jj, total_correct / total_labels, np.average(losses)))
