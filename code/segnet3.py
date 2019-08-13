@@ -7,31 +7,95 @@ os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
 import numpy as np
-import mxnet as mx
-
 import tensorflow as tf
 import keras
-
-from gluoncv.data import CitySegmentation
-
 from lib.SegNet import SegNet
 
 ####################################
 
-train_dataset = CitySegmentation(split='train')
-train_examples = len(train_dataset)
+def get_val_filenames():
+    val_filenames = []
 
-val_dataset = CitySegmentation(split='val')
-val_examples = len(val_dataset)
+    print ("building validation dataset")
 
-batch_size = 5
-epochs = 10
+    for subdir, dirs, files in os.walk(val_path):
+        for file in files:
+            val_filenames.append(os.path.join(val_path, file))
+
+    np.random.shuffle(val_filenames)    
+
+    return val_filenames
+    
+def get_train_filenames():
+    train_filenames = []
+
+    print ("building training dataset")
+
+    for subdir, dirs, files in os.walk(train_path):
+        for file in files:
+            train_filenames.append(os.path.join(train_path, file))
+    
+    np.random.shuffle(train_filenames)
+
+    return train_filenames
+
+def extract_fn(record):
+    _feature={
+        'image_raw': tf.FixedLenFeature([], tf.string),
+        'label_raw': tf.FixedLenFeature([], tf.string)
+    }
+
+    sample = tf.parse_single_example(record, _feature)
+
+    image = tf.decode_raw(sample['image_raw'], tf.uint8)
+    image = tf.cast(image, dtype=tf.float32)
+    image = tf.reshape(image, (1, 480, 480, 3))
+
+    label = tf.decode_raw(sample['label_raw'], tf.uint8)
+    label = tf.cast(label, dtype=tf.float32)
+    label = tf.reshape(label, (1, 480, 480))
+
+    return [image, label]
 
 ####################################
 
-image         = tf.placeholder(tf.float32, [batch_size, 480, 480, 3])
-label         = tf.placeholder(tf.int64, [batch_size, 480, 480])
+train_filenames = get_train_filenames()
+val_filenames = get_val_filenames()
+
+####################################
+
+filename = tf.placeholder(tf.string, shape=[None])
+batch_size = tf.placeholder(tf.int32, shape=())
+lr = tf.placeholder(tf.float32, shape=())
+
+####################################
+
+val_dataset = tf.data.TFRecordDataset(filename)
+val_dataset = val_dataset.map(extract_fn, num_parallel_calls=4)
+val_dataset = val_dataset.batch(args.batch_size)
+val_dataset = val_dataset.repeat()
+val_dataset = val_dataset.prefetch(8)
+
+train_dataset = tf.data.TFRecordDataset(filename)
+train_dataset = train_dataset.map(extract_fn, num_parallel_calls=4)
+train_dataset = train_dataset.batch(args.batch_size)
+train_dataset = train_dataset.repeat()
+train_dataset = train_dataset.prefetch(8)
+
+####################################
+
+handle = tf.placeholder(tf.string, shape=[])
+iterator = tf.data.Iterator.from_string_handle(handle, train_dataset.output_types, train_dataset.output_shapes)
+x, y = iterator.get_next()
+
+image         = tf.reshape(x, [batch_size, 480, 480, 3])
+label         = tf.reshape(y, [batch_size, 480, 480])
 label_one_hot = tf.one_hot(label, depth=30, axis=-1)
+
+train_iterator = train_dataset.make_initializable_iterator()
+val_iterator = val_dataset.make_initializable_iterator()
+
+####################################
 
 model   = SegNet(batch_size=batch_size, init='glorot_uniform', load='/usr/scratch/bcrafton/cityscapes/code/MobileNetWeights.npy')
 out     = model.predict(image)
@@ -39,40 +103,14 @@ predict = tf.argmax(tf.nn.softmax(out), axis=3)
 
 ####################################
 
-correct = tf.equal(predict, label)
-sum_correct = tf.reduce_sum(tf.cast(correct, tf.float32))
-
-loss = tf.nn.softmax_cross_entropy_with_logits_v2(labels=label_one_hot, logits=out)
-train = tf.train.AdamOptimizer(learning_rate=1e-2, epsilon=1.).minimize(loss)
-
-####################################
-
 sess = tf.InteractiveSession()
 tf.global_variables_initializer().run()
 
 for ii in range(epochs):
+    sess.run(train_iterator.initializer, feed_dict={filename: train_filenames})
 
-    total_correct = 0.
-    total_labels = 0.
-    losses = []
-    for jj in range(0, train_examples, batch_size):
-
-        xs = []
-        ys = []
-        for kk in range(batch_size):
-            x, y = train_dataset[jj]
-            xs.append(x.asnumpy())
-            ys.append(y.asnumpy())
-        xs = np.stack(xs, axis=0)
-        ys = np.stack(ys, axis=0)
-
-        [_sum_correct, _loss, _] = sess.run([sum_correct, loss, train], feed_dict={image: xs, label: ys})
-
-        total_correct += _sum_correct
-        total_labels += batch_size * 480 * 480
-        losses.append(_loss)        
-        
-        print ('%d %f %f' % (jj, total_correct / total_labels, np.average(losses)))
+    for jj in range(0, train_examples, args.batch_size):
+        [predict] = sess.run([predict], feed_dict={handle: train_handle, batch_size: args.batch_size, lr: lr_decay})
 
 ####################################
 
