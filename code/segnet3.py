@@ -7,7 +7,7 @@ import sys
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--epochs', type=int, default=100)
-parser.add_argument('--batch_size', type=int, default=16)
+parser.add_argument('--batch_size', type=int, default=4)
 parser.add_argument('--gpu', type=int, default=0)
 parser.add_argument('--lr', type=float, default=1e-2)
 parser.add_argument('--init', type=str, default="glorot_uniform")
@@ -121,7 +121,12 @@ val_iterator = val_dataset.make_initializable_iterator()
 
 model   = SegNet(batch_size=batch_size, init='glorot_uniform', load='/usr/scratch/bcrafton/semantic-segmentation/code/MobileNetWeights.npy')
 out     = model.predict(image)
-predict = tf.argmax(tf.nn.softmax(out), axis=3)
+predict = tf.argmax(tf.nn.softmax(out), axis=3, output_type=tf.int32)
+
+correct = tf.equal(predict, label)
+sum_correct = tf.reduce_sum(tf.cast(correct, tf.float32))
+loss = tf.nn.softmax_cross_entropy_with_logits_v2(labels=label_one_hot, logits=out)
+train = tf.train.AdamOptimizer(learning_rate=1e-2, epsilon=1.).minimize(loss)
 
 ####################################
 
@@ -137,9 +142,13 @@ val_handle = sess.run(val_iterator.string_handle())
 
 for ii in range(args.epochs):
     sess.run(train_iterator.initializer, feed_dict={filename: train_filenames})
-
+    
+    losses = []
     for jj in range(0, train_examples, args.batch_size):
-        [pred] = sess.run([predict], feed_dict={handle: train_handle, batch_size: args.batch_size, lr: args.lr})
+        [l, _] = sess.run([loss, train], feed_dict={handle: train_handle, batch_size: args.batch_size, lr: args.lr})
+
+        losses.append(l)
+        print (np.average(losses))
 
 ####################################
 
