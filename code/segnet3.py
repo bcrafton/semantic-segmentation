@@ -144,6 +144,9 @@ val_handle = sess.run(val_iterator.string_handle())
 ###############################################################
 
 for ii in range(args.epochs):
+
+    ####################################
+
     sess.run(train_iterator.initializer, feed_dict={filename: train_filenames})
     
     total_correct = deque(maxlen=25)
@@ -156,6 +159,8 @@ for ii in range(args.epochs):
         losses.append(l)
 
         if (jj % 100 == 0):
+            print ('%d %f %f' % (jj, np.average(total_correct) / (args.batch_size * 480. * 480.), np.average(losses)))
+
             top = np.average(img[0], axis=2)
             top = top / np.max(top)
 
@@ -163,15 +168,29 @@ for ii in range(args.epochs):
             bot = bot / np.max(bot)
 
             img = np.concatenate((top, bot), axis=0)
-
-            print ('%d %f %f' % (jj, np.average(total_correct) / (args.batch_size * 480. * 480.), np.average(losses)))
             plt.imsave('%d.jpg' % (jj), img)
+
+    print ('%d %f %f' % (jj, np.average(total_correct) / (args.batch_size * 480. * 480.), np.average(losses)))
             
-####################################
+    ####################################
 
+    sess.run(val_iterator.initializer, feed_dict={filename: val_filenames})
+    
+    total_correct = []
+    losses = []
 
+    for jj in range(0, val_examples, args.batch_size):
+        [c, l] = sess.run([sum_correct, loss], feed_dict={handle: val_handle, batch_size: args.batch_size, lr: args.lr})
 
+        total_correct.append(c)
+        losses.append(l)
 
+        if (jj % 100 == 0):
+            print ('%d %f %f' % (jj, np.average(total_correct) / (args.batch_size * 480. * 480.), np.average(losses)))
+
+    print ('%d %f %f' % (jj, np.average(total_correct) / (args.batch_size * 480. * 480.), np.average(losses)))
+    
+    ####################################
 
 
 
