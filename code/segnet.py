@@ -33,7 +33,7 @@ image         = tf.placeholder(tf.float32, [batch_size, 480, 480, 3])
 label         = tf.placeholder(tf.int64, [batch_size, 480, 480])
 label_one_hot = tf.one_hot(label, depth=30, axis=-1)
 
-model   = SegNet(batch_size=batch_size, init='glorot_uniform')
+model   = SegNet(batch_size=batch_size, init='glorot_uniform', load='/usr/scratch/bcrafton/cityscapes/code/MobileNetWeights.npy')
 out     = model.predict(image)
 predict = tf.argmax(tf.nn.softmax(out), axis=3)
 
