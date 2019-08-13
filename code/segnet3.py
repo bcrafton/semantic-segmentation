@@ -25,6 +25,7 @@ if args.gpu >= 0:
 import numpy as np
 import tensorflow as tf
 import keras
+import matplotlib.pyplot as plt
 from collections import deque
 from lib.SegNet import SegNet
 
@@ -148,14 +149,26 @@ for ii in range(args.epochs):
     losses = deque(maxlen=25)
 
     for jj in range(0, train_examples, args.batch_size):
-        [c, l, _] = sess.run([sum_correct, loss, train], feed_dict={handle: train_handle, batch_size: args.batch_size, lr: args.lr})
+        [c, l, img, pred, _] = sess.run([sum_correct, loss, image, predict, train], feed_dict={handle: train_handle, batch_size: args.batch_size, lr: args.lr})
 
         total_correct.append(c)
         losses.append(l)
 
         if (jj % 100 == 0):
-            print ('%d %f %f' % (jj, np.average(total_correct) / (args.batch_size * 480. * 480.), np.average(losses)))
+            left = np.average(img[0], axis=2)
+            right = pred[0]
+            img = np.concatenate((left, right), axis=0)
 
+            print ('%d %f %f' % (jj, np.average(total_correct) / (args.batch_size * 480. * 480.), np.average(losses)))
+            plt.imsave('%d.jpg' % (jj), img)
+            
 ####################################
+
+
+
+
+
+
+
 
 
