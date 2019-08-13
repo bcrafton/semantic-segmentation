@@ -48,7 +48,7 @@ def get_val_filenames():
 
     # np.random.shuffle(val_filenames)    
 
-    return val_filenames
+    return sorted(val_filenames)
     
 def get_train_filenames():
     train_filenames = []
@@ -61,7 +61,7 @@ def get_train_filenames():
     
     # np.random.shuffle(train_filenames)
 
-    return train_filenames
+    return sorted(train_filenames)
 
 def extract_fn(record):
     _feature={
