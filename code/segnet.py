@@ -42,6 +42,9 @@ predict = tf.argmax(tf.nn.softmax(out), axis=3)
 correct = tf.equal(predict, label)
 sum_correct = tf.reduce_sum(tf.cast(correct, tf.float32))
 
+loss = tf.nn.softmax_cross_entropy_with_logits_v2(labels=label_one_hot, logits=out)
+train = tf.train.AdamOptimizer(learning_rate=1e-2, epsilon=1.).minimize(loss)
+
 ####################################
 
 sess = tf.InteractiveSession()
@@ -49,16 +52,22 @@ tf.global_variables_initializer().run()
 
 for ii in range(epochs):
 
-    total_correct = 0 
+    total_correct = 0.
+    total_labels = 0.
+    losses = []
     for jj in range(0, 500, batch_size):
-        print (jj)
+
         x, y = val_dataset[jj]
         xs = x.asnumpy().reshape([1, 480, 480, 3])
         ys = y.asnumpy().reshape([1, 480, 480])
-        [_sum_correct] = sess.run([sum_correct], feed_dict={image: xs, label: ys})
-        total_correct += _sum_correct
 
-    print (total_correct)
+        [_sum_correct, _loss, _] = sess.run([sum_correct, loss, train], feed_dict={image: xs, label: ys})
+
+        total_correct += _sum_correct
+        total_labels += 1 * 480 * 480
+        losses.append(_loss)        
+        
+        print ('%d %f %f' % (jj, total_correct / total_labels, np.average(losses)))
 
 ####################################
 
