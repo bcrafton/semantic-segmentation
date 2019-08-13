@@ -7,8 +7,9 @@ import sys
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--epochs', type=int, default=100)
-parser.add_argument('--batch_size', type=int, default=64)
-parser.add_argument('--lr', type=float, default=1e-4)
+parser.add_argument('--batch_size', type=int, default=16)
+parser.add_argument('--gpu', type=int, default=0)
+parser.add_argument('--lr', type=float, default=1e-2)
 parser.add_argument('--init', type=str, default="glorot_uniform")
 parser.add_argument('--save', type=int, default=0)
 parser.add_argument('--name', type=str, default="segnet")
@@ -25,6 +26,11 @@ import numpy as np
 import tensorflow as tf
 import keras
 from lib.SegNet import SegNet
+
+####################################
+
+train_path = '/usr/scratch/bcrafton/cityscapes/train'
+val_path = '/usr/scratch/bcrafton/cityscapes/val'
 
 ####################################
 
@@ -67,7 +73,7 @@ def extract_fn(record):
     image = tf.reshape(image, (1, 480, 480, 3))
 
     label = tf.decode_raw(sample['label_raw'], tf.uint8)
-    label = tf.cast(label, dtype=tf.float32)
+    label = tf.cast(label, dtype=tf.int64)
     label = tf.reshape(label, (1, 480, 480))
 
     return [image, label]
@@ -76,6 +82,9 @@ def extract_fn(record):
 
 train_filenames = get_train_filenames()
 val_filenames = get_val_filenames()
+
+train_examples = len(train_filenames)
+val_examples = len(val_filenames)
 
 ####################################
 
@@ -112,20 +121,27 @@ val_iterator = val_dataset.make_initializable_iterator()
 
 ####################################
 
-model   = SegNet(batch_size=batch_size, init='glorot_uniform', load='/usr/scratch/bcrafton/cityscapes/code/MobileNetWeights.npy')
+model   = SegNet(batch_size=batch_size, init='glorot_uniform', load='/usr/scratch/bcrafton/semantic-segmentation/code/MobileNetWeights.npy')
 out     = model.predict(image)
 predict = tf.argmax(tf.nn.softmax(out), axis=3)
 
 ####################################
 
-sess = tf.InteractiveSession()
-tf.global_variables_initializer().run()
+config = tf.ConfigProto(allow_soft_placement=True)
+config.gpu_options.allow_growth=True
+sess = tf.Session(config=config)
+sess.run(tf.global_variables_initializer())
 
-for ii in range(epochs):
+train_handle = sess.run(train_iterator.string_handle())
+val_handle = sess.run(val_iterator.string_handle())
+
+###############################################################
+
+for ii in range(args.epochs):
     sess.run(train_iterator.initializer, feed_dict={filename: train_filenames})
 
     for jj in range(0, train_examples, args.batch_size):
-        [predict] = sess.run([predict], feed_dict={handle: train_handle, batch_size: args.batch_size, lr: lr_decay})
+        [pred] = sess.run([predict], feed_dict={handle: train_handle, batch_size: args.batch_size, lr: args.lr})
 
 ####################################
 
