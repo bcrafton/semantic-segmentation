@@ -25,6 +25,7 @@ if args.gpu >= 0:
 import numpy as np
 import tensorflow as tf
 import keras
+from collections import deque
 from lib.SegNet import SegNet
 
 ####################################
@@ -143,12 +144,16 @@ val_handle = sess.run(val_iterator.string_handle())
 for ii in range(args.epochs):
     sess.run(train_iterator.initializer, feed_dict={filename: train_filenames})
     
-    losses = []
-    for jj in range(0, train_examples, args.batch_size):
-        [l, _] = sess.run([loss, train], feed_dict={handle: train_handle, batch_size: args.batch_size, lr: args.lr})
+    total_correct = deque(maxlen=25)
+    losses = deque(maxlen=25)
 
+    for jj in range(0, train_examples, args.batch_size):
+        [c, l, _] = sess.run([sum_correct, loss, train], feed_dict={handle: train_handle, batch_size: args.batch_size, lr: args.lr})
+
+        total_correct.append(c)
         losses.append(l)
-        print (np.average(losses))
+
+        print ('%d %f %f' % (jj, np.average(total_correct) / (args.batch_size * 480. * 480.), np.average(losses)))
 
 ####################################
 
