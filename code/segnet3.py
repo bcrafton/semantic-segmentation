@@ -1,10 +1,25 @@
 
-####################################
+import argparse
+import os
+import sys
 
-import os 
+##############################################
 
-os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="0"
+parser = argparse.ArgumentParser()
+parser.add_argument('--epochs', type=int, default=100)
+parser.add_argument('--batch_size', type=int, default=64)
+parser.add_argument('--lr', type=float, default=1e-4)
+parser.add_argument('--init', type=str, default="glorot_uniform")
+parser.add_argument('--save', type=int, default=0)
+parser.add_argument('--name', type=str, default="segnet")
+parser.add_argument('--load', type=str, default=None)
+args = parser.parse_args()
+
+if args.gpu >= 0:
+    os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+    os.environ["CUDA_VISIBLE_DEVICES"]=str(args.gpu)
+
+##############################################
 
 import numpy as np
 import tensorflow as tf
