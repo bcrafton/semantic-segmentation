@@ -7,9 +7,10 @@ import sys
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--epochs', type=int, default=100)
-parser.add_argument('--batch_size', type=int, default=4)
+parser.add_argument('--batch_size', type=int, default=5)
 parser.add_argument('--gpu', type=int, default=0)
-parser.add_argument('--lr', type=float, default=1e-2)
+parser.add_argument('--lr', type=float, default=1e-3)
+parser.add_argument('--eps', type=float, default=1.)
 parser.add_argument('--init', type=str, default="glorot_uniform")
 parser.add_argument('--save', type=int, default=0)
 parser.add_argument('--name', type=str, default="segnet")
@@ -128,7 +129,7 @@ predict = tf.argmax(tf.nn.softmax(out), axis=3, output_type=tf.int32)
 correct = tf.equal(predict, label)
 sum_correct = tf.reduce_sum(tf.cast(correct, tf.float32))
 loss = tf.nn.softmax_cross_entropy_with_logits_v2(labels=label_one_hot, logits=out)
-train = tf.train.AdamOptimizer(learning_rate=1e-2, epsilon=1.).minimize(loss)
+train = tf.train.AdamOptimizer(learning_rate=args.lr, epsilon=args.eps).minimize(loss)
 
 ####################################
 
@@ -155,9 +156,13 @@ for ii in range(args.epochs):
         losses.append(l)
 
         if (jj % 100 == 0):
-            left = np.average(img[0], axis=2)
-            right = pred[0]
-            img = np.concatenate((left, right), axis=0)
+            top = np.average(img[0], axis=2)
+            top = top / np.max(top)
+
+            bot = pred[0]
+            bot = bot / np.max(bot)
+
+            img = np.concatenate((top, bot), axis=0)
 
             print ('%d %f %f' % (jj, np.average(total_correct) / (args.batch_size * 480. * 480.), np.average(losses)))
             plt.imsave('%d.jpg' % (jj), img)
