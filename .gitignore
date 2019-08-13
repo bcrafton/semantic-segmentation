@@ -5,3 +5,4 @@ dataset/
 *.npy
 SegNet-tensorflow
 *.png
+*.jpg
