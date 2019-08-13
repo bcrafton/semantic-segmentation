@@ -68,12 +68,10 @@ def extract_fn(record):
 
     sample = tf.parse_single_example(record, _feature)
 
-    image = tf.decode_raw(sample['image_raw'], tf.uint8)
-    image = tf.cast(image, dtype=tf.float32)
+    image = tf.decode_raw(sample['image_raw'], tf.float32)
     image = tf.reshape(image, (1, 480, 480, 3))
 
-    label = tf.decode_raw(sample['label_raw'], tf.uint8)
-    label = tf.cast(label, dtype=tf.int64)
+    label = tf.decode_raw(sample['label_raw'], tf.int32)
     label = tf.reshape(label, (1, 480, 480))
 
     return [image, label]
